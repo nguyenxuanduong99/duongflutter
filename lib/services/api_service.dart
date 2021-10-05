@@ -29,59 +29,51 @@ class ApiService {
     parameters ??= {};
     headers ??= {};
 
-    final accessToken = 'Bearer token';
+    const accessToken = 'Bearer token';
 
     final _headers = {
-      // 'authorization': accessToken,
-      'Conten-Type': 'application/json',
+      'authorization': accessToken,
+      'Content-Type': 'application/json; charset=UTF-8',
     }..addAll(headers);
 
-    print(baseUrl + path);
+    //print(baseUrl + path);
     // print('$_headers');
 
     try {
       http.Response res;
 
       final url = Uri.parse(baseUrl + path);
-
       switch (method) {
         case Method.get:
           res = await http.get(url, headers: _headers);
           break;
-
         case Method.post:
           if (file != null) {
             var request = http.MultipartRequest('POST', url);
-            request.files.add(
-              await http.MultipartFile.fromPath('file', file.path),
-            );
+            request.files.add(  await http.MultipartFile.fromPath('file', file.path),);
             request.headers.addAll(headers);
             request.fields.addAll(parameters);
             res = await http.Response.fromStream(await request.send());
-
           } else {
             res = await http.post(
               url,
               headers: _headers,
-              body: parameters,
+              body: jsonEncode(parameters),
               encoding: utf8,
             );
           }
           break;
-
         case Method.put:
           res = await http.put(
             url,
             headers: _headers,
-            body: parameters,
+            body: jsonEncode(parameters),
             encoding: utf8,
           );
           break;
-
         case Method.delete:
           res = await http.delete(url, headers: _headers);
           break;
-
         default:
           res = await http.get(url, headers: _headers);
           break;

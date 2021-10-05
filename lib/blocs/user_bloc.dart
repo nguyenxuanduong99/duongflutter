@@ -12,7 +12,7 @@ class UserBloc{
 
   Stream<bool> get isLoadMoreStream => _isLoadMoreStreamCtrl.stream;
 
-  var user =<User>[];
+  var users =<User>[];
   UserBloc();
 
   void dispose(){
@@ -25,10 +25,10 @@ class UserBloc{
     await apiService.getUsers(
         onSuccess: (data){
           if (isRefresh) {
-            user.clear();
+            users.clear();
           }
-          user.addAll(data);
-          _userStreamCtrl.add(user);
+          users.addAll(data);
+          _userStreamCtrl.add(users);
         },
         onFailure: (error){
           _userStreamCtrl.addError(error);
@@ -36,14 +36,54 @@ class UserBloc{
     );
     _isLoadMoreStreamCtrl.add(false);
   }
+  void getUserById(int id) async{
+    await apiService.getUserById(
+      id: id,
+      onSuccess: (data){
+        users.clear();
+        users.addAll(data);
+        _userStreamCtrl.add(users);
+      },
+      onFailure: (error){
+        _userStreamCtrl.addError(error);
+      },
+    );
+  }
 
   void insert(User user) async{
-    var listUser =<User>[];
-    listUser.add(user);
     await apiService.insertUser(
         user: user,
         onSuccess: (json){
-          _userStreamCtrl.add(listUser);
+          users.add(user);
+          _userStreamCtrl.sink.add(users);
+        },
+        onFailure: (error){
+          _userStreamCtrl.addError(error);
+        }
+    );
+  }
+  void update(User user) async{
+    await apiService.updateUser(
+        user: user,
+        onSuccess: (json){
+          for(int i=0;i<users.length;i++){
+            if(users[i].id == user.id){
+              users[i] = user;
+            }
+          }
+          _userStreamCtrl.sink.add(users);
+        },
+        onFailure: (error){
+          _userStreamCtrl.addError(error);
+        }
+    );
+  }
+  void delete(User user) async{
+    await apiService.deleteUser(
+        user: user,
+        onSuccess: (json){
+          users.remove(user);
+          _userStreamCtrl.sink.add(users);
         },
         onFailure: (error){
           _userStreamCtrl.addError(error);

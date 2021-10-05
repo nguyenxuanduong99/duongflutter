@@ -1,16 +1,16 @@
 class User{
   late int id;
-  String ? name;
-  String ? address;
-  String ? phone;
-  String ? mail;
+  late String  name;
+  late String  address;
+  late String  phone;
+  late String  mail;
 
   User({
     required this.id,
-    this.name,
-    this.address,
-    this.phone,
-    this.mail,
+    required this.name,
+    required this.address,
+    required this.phone,
+    required this.mail,
   });
 
   User.fromJson(dynamic json){
